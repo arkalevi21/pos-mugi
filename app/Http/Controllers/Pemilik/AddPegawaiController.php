@@ -10,44 +10,32 @@ use Illuminate\Support\Facades\Hash;
 
 class AddPegawaiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $pegawai = User::whereIn('role', ['admin', 'kasir'])->get();
         return view('pemilik.pegawai.index', compact('pegawai'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(AddPegawaiRequest $request)
     {
         try {
-            $pegawai = User::create([
+            User::create([
                 'nama_user' => $request->nama_user,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role' => $request->role
+                'username'  => $request->username,
+                'password'  => Hash::make($request->password),
+                'role'      => $request->role
             ]);
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Pegawai berhasil ditambahkan',
-                'data' => $pegawai
-            ], 201);
+            // Redirect dengan pesan sukses
+            return redirect()->route('pemilik.pegawai.index')
+                ->with('success', 'Pegawai berhasil ditambahkan');
+
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menambahkan pegawai: ' . $e->getMessage()
-            ], 500);
+            // Redirect kembali dengan input lama dan pesan error
+            return back()->withInput()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(AddPegawaiRequest $request, $id)
     {
         try {
@@ -55,83 +43,47 @@ class AddPegawaiController extends Controller
             
             $data = [
                 'nama_user' => $request->nama_user,
-                'username' => $request->username,
-                'role' => $request->role
+                'username'  => $request->username,
+                'role'      => $request->role
             ];
             
-            // Update password jika diisi
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
             }
             
             $pegawai->update($data);
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Pegawai berhasil diperbarui',
-                'data' => $pegawai
-            ]);
+            return redirect()->route('pemilik.pegawai.index')
+                ->with('success', 'Pegawai berhasil diperbarui');
+
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui pegawai: ' . $e->getMessage()
-            ], 500);
+            return back()->withInput()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
-            // Cek apakah user yang login menghapus dirinya sendiri
             if (auth()->id() == $id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak dapat menghapus akun sendiri'
-                ], 400);
+                return back()->with('error', 'Tidak dapat menghapus akun sendiri');
             }
             
             $pegawai = User::findOrFail($id);
             
-            // Cek apakah pegawai memiliki transaksi
             if ($pegawai->transaksi()->count() > 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pegawai tidak dapat dihapus karena memiliki riwayat transaksi'
-                ], 400);
+                return back()->with('error', 'Pegawai tidak dapat dihapus karena memiliki riwayat transaksi');
             }
             
             $pegawai->delete();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Pegawai berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus pegawai: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+            return redirect()->route('pemilik.pegawai.index')
+                ->with('success', 'Pegawai berhasil dihapus');
 
-    // Tambahkan method edit()
-    public function edit($id)
-    {
-        try {
-            $pegawai = User::findOrFail($id);
-            
-            return response()->json([
-                'success' => true,
-                'data' => $pegawai
-            ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pegawai tidak ditemukan'
-            ], 404);
+            return back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
+    
+    // Method edit() TIDAK DIPERLUKAN LAGI jika tidak pakai AJAX
+    // Kita akan kirim data lewat atribut HTML di View
 }

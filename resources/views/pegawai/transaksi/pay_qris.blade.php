@@ -1,71 +1,70 @@
 @extends('layouts.app')
 
 @section('title', 'Pembayaran QRIS')
+@section('header-title', 'Pembayaran')
 
 @section('content')
-<div class="container py-5">
-    <div class="card text-center mx-auto" style="max-width: 500px;">
-        <div class="card-body">
-            <h3 class="card-title">Menunggu Pembayaran</h3>
-            <p class="text-muted">Total: <strong>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</strong></p>
-            <p>Silahkan minta pelanggan scan QRIS yang muncul.</p>
-            
-            <div class="my-4">
-                <button id="pay-button" class="btn btn-primary btn-lg">
-                    <i class="bi bi-qr-code"></i> Tampilkan QRIS / Bayar Sekarang
-                </button>
+<div class="min-h-[60vh] flex flex-col items-center justify-center p-4">
+    
+    <div class="bg-white w-full rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-center p-8">
+        
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-qrcode text-3xl"></i>
+        </div>
+
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Scan QRIS</h2>
+        <p class="text-gray-500 text-sm mb-6">Silahkan minta pelanggan scan QR Code yang muncul setelah tombol ditekan.</p>
+
+        <div class="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
+            <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Tagihan</span>
+            <div class="text-2xl font-bold text-gray-900 mt-1">
+                Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
             </div>
-            
-            <div class="alert alert-info small">
-                Status saat ini: <span class="badge bg-warning text-dark">{{ strtoupper($transaksi->status) }}</span>
+            <div class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">
+                <i class="fa-solid fa-clock"></i> {{ strtoupper($transaksi->status) }}
             </div>
         </div>
+        
+        <button id="pay-button" class="w-full bg-warkop text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-red-800 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-expand"></i>
+            Tampilkan QRIS / Bayar
+        </button>
+
+        <a href="{{ route('transaksi.create') }}" class="block mt-4 text-sm text-gray-400 hover:text-gray-600">
+            Batalkan Pembayaran
+        </a>
     </div>
+
 </div>
 @endsection
 
 @section('scripts')
-{{-- 1. Load Snap JS --}}
 <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 
 <script type="text/javascript">
-    // Log awal untuk memastikan script terpanggil
-    console.log("Script Pay QRIS dimuat...");
-
     const payButton = document.getElementById('pay-button');
     const snapToken = '{{ $snapToken }}';
 
-    // Cek apakah Client Key terload
-    const clientKey = "{{ config('midtrans.client_key') }}";
-    console.log("Client Key:", clientKey);
-    console.log("Snap Token:", snapToken);
-
     payButton.addEventListener('click', function (e) {
-        e.preventDefault(); // Mencegah reload halaman
-        console.log("Tombol Bayar Ditekan!");
-
-        // Cek ketersediaan Snap
+        e.preventDefault();
+        
         if (typeof window.snap === 'undefined') {
-            alert("Error: Snap.js belum dimuat. Cek koneksi internet atau Client Key.");
+            alert("Sistem Pembayaran sedang memuat, coba sesaat lagi.");
             return;
         }
 
         window.snap.pay(snapToken, {
             onSuccess: function(result){
-                console.log("Success:", result);
                 window.location.href = "{{ route('transaksi.finish_qris', $transaksi->id_transaksi) }}";
             },
             onPending: function(result){
-                console.log("Pending:", result);
                 alert("Menunggu pembayaran!");
             },
             onError: function(result){
-                console.log("Error:", result);
                 alert("Pembayaran gagal atau error sistem.");
             },
             onClose: function(){
-                console.log("Closed");
-                alert('Anda menutup popup tanpa menyelesaikan pembayaran');
+                // Opsional: Lakukan sesuatu jika popup ditutup
             }
         });
     });

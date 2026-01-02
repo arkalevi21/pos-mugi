@@ -108,6 +108,8 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('pegawai')->name('pegawai.')->group(function () {
             Route::get('/', [AddPegawaiController::class, 'index'])->name('index');
             Route::post('/', [AddPegawaiController::class, 'store'])->name('store');
+
+            // Pastikan parameternya '{id}' (bukan '{user}' atau lainnya)
             Route::get('/{id}/edit', [AddPegawaiController::class, 'edit'])->name('edit');
             Route::put('/{id}', [AddPegawaiController::class, 'update'])->name('update');
             Route::delete('/{id}', [AddPegawaiController::class, 'destroy'])->name('destroy');
