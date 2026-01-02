@@ -218,7 +218,6 @@
                                 <th width="100">Metode</th>
                                 <th width="120">Total</th>
                                 <th width="150">Tanggal</th>
-                                <th width="80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -246,16 +245,6 @@
                                 </td>
                                 <td>
                                     {{ \Carbon\Carbon::parse($trans->tanggal)->translatedFormat('d M Y H:i') }}
-                                </td>
-                                <td>
-                                    <a href="{{ route('riwayat.show', $trans->id_transaksi) }}" 
-                                       class="btn btn-sm btn-info" title="Detail" target="_blank">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="{{ route('transaksi.print', $trans->id_transaksi) }}" 
-                                       class="btn btn-sm btn-secondary" title="Cetak Struk" target="_blank">
-                                        <i class="bi bi-printer"></i>
-                                    </a>
                                 </td>
                             </tr>
                             @endforeach

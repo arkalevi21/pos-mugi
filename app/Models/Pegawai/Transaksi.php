@@ -18,8 +18,6 @@ class Transaksi extends Model
         'metode_pembayaran',
         'uang_diterima',
         'uang_kembalian',
-        'midtrans_order_id',
-        'midtrans_status',
         'total_harga',
         'tanggal'
     ];
