@@ -110,10 +110,9 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [AddPegawaiController::class, 'destroy'])->name('destroy');
         });
 
-        // LAPORAN PENJUALAN
+        // LAPORAN
         Route::prefix('laporan')->name('laporan.')->group(function () {
             Route::get('/', [LaporanController::class, 'index'])->name('index');
-            Route::get('/data', [LaporanController::class, 'getData'])->name('data');
             Route::get('/print', [LaporanController::class, 'print'])->name('print');
             Route::get('/export', [LaporanController::class, 'export'])->name('export');
         });
