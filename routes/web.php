@@ -23,6 +23,7 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+Route::post('/midtrans/callback', [TransaksiController::class, 'callback'])->name('midtrans.callback');
 // ========== AUTHENTICATED ROUTES ==========
 Route::middleware(['auth'])->group(function () {
 
@@ -83,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
 
     // ========== KASIR ONLY ROUTES ==========
     Route::middleware(['role:kasir'])->group(function () {
+        Route::get('/transaksi/{id}/finish-qris', [TransaksiController::class, 'finishQris'])->name('transaksi.finish_qris');
+
         // TRANSAKSI
         Route::prefix('transaksi')->name('transaksi.')->group(function () {
             Route::get('/create', [TransaksiController::class, 'create'])->name('create');

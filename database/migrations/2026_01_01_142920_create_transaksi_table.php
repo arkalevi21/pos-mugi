@@ -18,8 +18,6 @@ return new class extends Migration
             $table->enum('metode_pembayaran', ['tunai', 'qris']);
             $table->integer('uang_diterima')->nullable(); // untuk tunai
             $table->integer('uang_kembalian')->nullable(); // untuk tunai
-            $table->string('midtrans_order_id')->nullable(); // untuk qris
-            $table->string('midtrans_status')->nullable(); // untuk qris
             $table->integer('total_harga');
             $table->timestamp('tanggal')->useCurrent();
             $table->timestamps();

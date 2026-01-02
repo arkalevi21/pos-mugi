@@ -19,7 +19,9 @@ class Transaksi extends Model
         'uang_diterima',
         'uang_kembalian',
         'total_harga',
-        'tanggal'
+        'tanggal',
+        'status',      // Baru
+        'snap_token'
     ];
     
     protected $casts = [
