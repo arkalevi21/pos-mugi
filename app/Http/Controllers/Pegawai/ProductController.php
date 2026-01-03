@@ -15,7 +15,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $produk = Produk::with('kategori')->get();
+        $product = Produk::with('kategori')->get();
         $kategori = Kategori::all();
         
         $editMode = false;
@@ -29,7 +29,7 @@ class ProductController extends Controller
             }
         }
         
-        return view('pegawai.produk.index', compact('produk', 'kategori', 'editMode', 'produkEdit'));
+        return view('pegawai.produk.index', compact('product', 'kategori', 'editMode', 'produkEdit'));
     }
 
     /**
@@ -53,11 +53,7 @@ class ProductController extends Controller
                 'is_active' => true
             ];
             
-            // Handle gambar upload
-            if ($request->hasFile('gambar')) {
-                $path = $request->file('gambar')->store('products', 'public');
-                $data['gambar'] = basename($path);
-            }
+            
             
             Produk::create($data);
             
@@ -91,16 +87,7 @@ class ProductController extends Controller
                 'harga' => $request->harga
             ];
             
-            // Handle gambar upload jika ada file baru
-            if ($request->hasFile('gambar')) {
-                // Hapus gambar lama jika ada
-                if ($produk->gambar && Storage::disk('public')->exists('products/' . $produk->gambar)) {
-                    Storage::disk('public')->delete('products/' . $produk->gambar);
-                }
-                
-                $path = $request->file('gambar')->store('products', 'public');
-                $data['gambar'] = basename($path);
-            }
+           
             
             $produk->update($data);
             
@@ -121,10 +108,6 @@ class ProductController extends Controller
         try {
             $produk = Produk::findOrFail($id);
             
-            // Hapus gambar jika ada
-            if ($produk->gambar && Storage::disk('public')->exists('products/' . $produk->gambar)) {
-                Storage::disk('public')->delete('products/' . $produk->gambar);
-            }
             
             $produk->delete();
             
