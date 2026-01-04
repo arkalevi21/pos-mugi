@@ -5,9 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Pegawai\KategoriController;
 use App\Http\Controllers\Pegawai\ProductController;
 use App\Http\Controllers\Pegawai\OperasionalController;
-use App\Http\Controllers\Pegawai\RiwayatController;
 use App\Http\Controllers\Pegawai\TransaksiController;
-use App\Http\Controllers\Pegawai\TransaksiDetailController;
 use App\Http\Controllers\Pemilik\AddPegawaiController;
 use App\Http\Controllers\Pemilik\LaporanController;
 
@@ -81,17 +79,6 @@ Route::middleware(['auth'])->group(function () use ($idPath, $editPath) { // Pas
             Route::put($idPath, [OperasionalController::class, 'update'])->name('update');
             Route::delete($idPath, [OperasionalController::class, 'destroy'])->name('destroy');
         });
-
-        // RIWAYAT TRANSAKSI
-        Route::prefix('riwayat')->name('riwayat.')->group(function () use ($idPath) {
-            Route::get('/', [RiwayatController::class, 'index'])->name('index');
-            // Gunakan variabel
-            Route::get($idPath, [RiwayatController::class, 'show'])->name('show');
-        });
-
-        // DETAIL TRANSAKSI
-        Route::get('/transaksi-detail/{id}', [TransaksiDetailController::class, 'show'])
-            ->name('transaksi.detail');
     });
 
     // ========== KASIR ONLY ROUTES ==========
