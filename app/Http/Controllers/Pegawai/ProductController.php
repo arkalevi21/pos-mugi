@@ -42,7 +42,6 @@ class ProductController extends Controller
                 'nama_produk' => 'required|string|max:100',
                 'id_kategori' => 'required|exists:kategori,id_kategori',
                 'harga' => 'required|numeric|min:0',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
             
             $data = [
@@ -52,12 +51,6 @@ class ProductController extends Controller
                 'stok' => 0,
                 'is_active' => true
             ];
-            
-            // Handle gambar upload
-            if ($request->hasFile('gambar')) {
-                $path = $request->file('gambar')->store('products', 'public');
-                $data['gambar'] = basename($path);
-            }
             
             Produk::create($data);
             
@@ -80,7 +73,6 @@ class ProductController extends Controller
                 'nama_produk' => 'required|string|max:100',
                 'id_kategori' => 'required|exists:kategori,id_kategori',
                 'harga' => 'required|numeric|min:0',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
             
             $produk = Produk::findOrFail($id);
@@ -90,17 +82,6 @@ class ProductController extends Controller
                 'id_kategori' => $request->id_kategori,
                 'harga' => $request->harga
             ];
-            
-            // Handle gambar upload jika ada file baru
-            if ($request->hasFile('gambar')) {
-                // Hapus gambar lama jika ada
-                if ($produk->gambar && Storage::disk('public')->exists('products/' . $produk->gambar)) {
-                    Storage::disk('public')->delete('products/' . $produk->gambar);
-                }
-                
-                $path = $request->file('gambar')->store('products', 'public');
-                $data['gambar'] = basename($path);
-            }
             
             $produk->update($data);
             
