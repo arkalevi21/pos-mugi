@@ -2,5 +2,5 @@ projectKey=adpl-project-api
 serverUrl=http://127.0.0.1:9005
 serverVersion=25.11.0.114957
 dashboardUrl=http://127.0.0.1:9005/dashboard?id=adpl-project-api
-ceTaskId=e83e5567-8f9c-4bac-8c8a-aec2733b7860
-ceTaskUrl=http://127.0.0.1:9005/api/ce/task?id=e83e5567-8f9c-4bac-8c8a-aec2733b7860
+ceTaskId=071a3a28-ff17-4a13-bfcd-81f6058e6114
+ceTaskUrl=http://127.0.0.1:9005/api/ce/task?id=071a3a28-ff17-4a13-bfcd-81f6058e6114
