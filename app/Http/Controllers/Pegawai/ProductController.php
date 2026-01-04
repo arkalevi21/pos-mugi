@@ -6,22 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Pegawai\Produk;
 use App\Models\Pegawai\Kategori;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage; // Hapus ini karena tidak pakai storage gambar lagi
 
 class ProductController extends Controller
 {
+    // HAPUS baris 'private const PRODUCT_DIR' di sini. Kita tidak butuh lagi.
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $produk = Produk::with('kategori')->get();
+        $product = Produk::with('kategori')->get();
         $kategori = Kategori::all();
         
         $editMode = false;
         $produkEdit = null;
         
-        // Cek jika ada parameter edit
         if ($request->has('edit')) {
             $produkEdit = Produk::find($request->edit);
             if ($produkEdit) {
@@ -29,7 +30,7 @@ class ProductController extends Controller
             }
         }
         
-        return view('pegawai.produk.index', compact('produk', 'kategori', 'editMode', 'produkEdit'));
+        return view('pegawai.produk.index', compact('product', 'kategori', 'editMode', 'produkEdit'));
     }
 
     /**
@@ -38,6 +39,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validasi tanpa gambar
             $request->validate([
                 'nama_produk' => 'required|string|max:100',
                 'id_kategori' => 'required|exists:kategori,id_kategori',
@@ -51,6 +53,8 @@ class ProductController extends Controller
                 'stok' => 0,
                 'is_active' => true
             ];
+            
+            // Logika upload gambar dihapus total
             
             Produk::create($data);
             
@@ -83,6 +87,8 @@ class ProductController extends Controller
                 'harga' => $request->harga
             ];
             
+            // Logika update gambar dihapus total
+            
             $produk->update($data);
             
             return redirect()->route('produk.index')
@@ -102,10 +108,7 @@ class ProductController extends Controller
         try {
             $produk = Produk::findOrFail($id);
             
-            // Hapus gambar jika ada
-            if ($produk->gambar && Storage::disk('public')->exists('products/' . $produk->gambar)) {
-                Storage::disk('public')->delete('products/' . $produk->gambar);
-            }
+            // Logika hapus file gambar dihapus total
             
             $produk->delete();
             

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Hash;
 
 class AddPegawaiController extends Controller
 {
+    private const ERROR_PREFIX = 'Gagal: ';
+    private const ROUTE_INDEX = 'pemilik.pegawai.index';
+
     public function index()
     {
         $pegawai = User::whereIn('role', ['admin', 'kasir'])->get();
@@ -25,14 +28,12 @@ class AddPegawaiController extends Controller
                 'password'  => Hash::make($request->password),
                 'role'      => $request->role
             ]);
-            
-            // Redirect dengan pesan sukses
-            return redirect()->route('pemilik.pegawai.index')
-                ->with('success', 'Pegawai berhasil ditambahkan');
 
+            return redirect()->route(self::ROUTE_INDEX)
+                ->with('success', 'Pegawai berhasil ditambahkan');
         } catch (\Exception $e) {
-            // Redirect kembali dengan input lama dan pesan error
-            return back()->withInput()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->withInput()
+                ->with('error', self::ERROR_PREFIX . $e->getMessage());
         }
     }
 
@@ -40,50 +41,49 @@ class AddPegawaiController extends Controller
     {
         try {
             $pegawai = User::findOrFail($id);
-            
+
             $data = [
                 'nama_user' => $request->nama_user,
                 'username'  => $request->username,
                 'role'      => $request->role
             ];
-            
+
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
             }
-            
-            $pegawai->update($data);
-            
-            return redirect()->route('pemilik.pegawai.index')
-                ->with('success', 'Pegawai berhasil diperbarui');
 
+            $pegawai->update($data);
+
+            return redirect()->route(self::ROUTE_INDEX)
+                ->with('success', 'Pegawai berhasil diperbarui');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->withInput()
+                ->with('error', self::ERROR_PREFIX . $e->getMessage());
         }
     }
 
     public function destroy($id)
     {
         try {
+            // 1. Cek User Sendiri
             if (auth()->id() == $id) {
-                return back()->with('error', 'Tidak dapat menghapus akun sendiri');
+                throw new \DomainException('Tidak dapat menghapus akun sendiri');
             }
             
             $pegawai = User::findOrFail($id);
             
-            if ($pegawai->transaksi()->count() > 0) {
-                return back()->with('error', 'Pegawai tidak dapat dihapus karena memiliki riwayat transaksi');
+            // 2. Cek Riwayat Transaksi
+            if ($pegawai->transaksi()->exists()) {
+                throw new \DomainException('Pegawai tidak dapat dihapus karena memiliki riwayat transaksi');
             }
             
             $pegawai->delete();
             
-            return redirect()->route('pemilik.pegawai.index')
+            return redirect()->route(self::ROUTE_INDEX)
                 ->with('success', 'Pegawai berhasil dihapus');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->with('error', self::ERROR_PREFIX . $e->getMessage());
         }
     }
-    
-    // Method edit() TIDAK DIPERLUKAN LAGI jika tidak pakai AJAX
-    // Kita akan kirim data lewat atribut HTML di View
 }

@@ -40,7 +40,7 @@
 @endif
 
 <div class="grid grid-cols-2 gap-3 pb-24">
-    @forelse($produk as $item)
+    @forelse($product as $item)
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer relative group"
          onclick="document.getElementById('form-add-{{ $item->id_produk }}').submit();">
 
@@ -120,7 +120,7 @@
             @foreach($cartItems as $item)
             <div class="flex items-start gap-3 pb-3 border-b border-gray-50 last:border-0 last:pb-0">
                 <div class="flex-1">
-                    <div class="font-medium text-gray-800 text-sm">{{ $item['nama_produk'] }}</div>
+                    <div class="font-medium text-gray-800 text-sm">{{ $item['nama_product'] }}</div>
                     <div class="text-xs text-gray-500 mt-1">@ Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</div>
                 </div>
                 
@@ -129,7 +129,7 @@
                         {{ number_format($item['subtotal'], 0, ',', '.') }}
                     </div>
                     <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-                        <form action="{{ route('cart.remove', $item['id_produk']) }}" method="POST">
+                        <form action="{{ route('cart.remove', $item['id_product']) }}" method="POST">
                             @csrf @method('DELETE')
                             <button class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors text-xs">
                                 <i class="fa-solid fa-trash"></i>
@@ -138,7 +138,7 @@
                         
                         <div class="w-px h-4 bg-gray-200"></div>
 
-                        <form action="{{ route('cart.update', $item['id_produk']) }}" method="POST" class="flex items-center">
+                        <form action="{{ route('cart.update', $item['id_product']) }}" method="POST" class="flex items-center">
                             @csrf @method('PUT')
                             <input type="number" name="qty" value="{{ $item['qty'] }}" min="1" 
                                    class="w-8 text-center bg-transparent border-none text-xs p-0 focus:ring-0 font-bold text-gray-700">

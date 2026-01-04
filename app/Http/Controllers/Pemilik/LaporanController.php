@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
+    // --- SONARQUBE FIX: Definisikan Konstanta Waktu Akhir Hari ---
+    private const END_OF_DAY = ' 23:59:59';
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,7 +29,8 @@ class LaporanController extends Controller
         
         // Get transactions
         $transactions = Transaksi::with(['user', 'detailTransaksi.produk'])
-            ->whereBetween('tanggal', [$startDate, $endDate . ' 23:59:59'])
+            // Ganti string manual dengan konstanta self::END_OF_DAY (1)
+            ->whereBetween('tanggal', [$startDate, $endDate . self::END_OF_DAY])
             ->orderBy('tanggal', 'desc')
             ->get();
             
@@ -49,7 +53,8 @@ class LaporanController extends Controller
         // Top products
         $topProducts = DetailTransaksi::select('id_produk', DB::raw('SUM(qty) as total_qty'))
             ->whereHas('transaksi', function($query) use ($startDate, $endDate) {
-                $query->whereBetween('tanggal', [$startDate, $endDate . ' 23:59:59']);
+                // Ganti string manual dengan konstanta self::END_OF_DAY (2)
+                $query->whereBetween('tanggal', [$startDate, $endDate . self::END_OF_DAY]);
             })
             ->with('produk')
             ->groupBy('id_produk')
@@ -79,7 +84,8 @@ class LaporanController extends Controller
         $endDate = $request->get('end_date', Carbon::now()->format('Y-m-d'));
         
         $transactions = Transaksi::with(['user', 'detailTransaksi.produk'])
-            ->whereBetween('tanggal', [$startDate, $endDate . ' 23:59:59'])
+            // Ganti string manual dengan konstanta self::END_OF_DAY (3)
+            ->whereBetween('tanggal', [$startDate, $endDate . self::END_OF_DAY])
             ->orderBy('tanggal', 'desc')
             ->get();
             

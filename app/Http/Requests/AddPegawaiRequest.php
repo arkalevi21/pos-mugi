@@ -20,7 +20,7 @@ class AddPegawaiRequest extends FormRequest
     public function rules(): array
     {
         // Ambil ID dari route parameter (karena di web.php pakai '/{id}')
-        $id = $this->route('id'); 
+        $id = $this->route('id');
 
         // Rule dasar
         $rules = [

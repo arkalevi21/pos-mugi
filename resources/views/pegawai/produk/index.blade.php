@@ -47,11 +47,11 @@
 </div>
 
 {{-- 3. PRODUCT LIST SECTION --}}
-@if($produk->count() > 0)
+@if($product->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-24 min-h-[300px]">
         
         {{-- Loop Produk --}}
-        @foreach($produk as $prod)
+        @foreach($product as $prod)
         {{-- Tambahkan data-kategori di sini --}}
         <div class="product-item p-4 flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors group"
              data-kategori="{{ $prod->id_kategori }}">

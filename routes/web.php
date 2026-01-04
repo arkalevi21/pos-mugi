@@ -17,6 +17,10 @@ use App\Http\Controllers\Pemilik\LaporanController;
 |--------------------------------------------------------------------------
 */
 
+// --- SONARQUBE FIX: Variabel untuk menghindari duplikasi string literal ---
+$idPath = '/{id}';
+$editPath = '/{id}/edit';
+
 // ========== PUBLIC ROUTES ==========
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -24,8 +28,9 @@ Route::middleware(['guest'])->group(function () {
 });
 
 Route::post('/midtrans/callback', [TransaksiController::class, 'callback'])->name('midtrans.callback');
+
 // ========== AUTHENTICATED ROUTES ==========
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function () use ($idPath, $editPath) { // Pass variable ke scope closure jika perlu (optional di level global, tapi aman)
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -39,42 +44,49 @@ Route::middleware(['auth'])->group(function () {
 
         // Kasir langsung ke transaksi
         return redirect()->route('transaksi.create');
-    })->name('home'); // Tambahkan nama route 'home'
+    })->name('home');
 
     // ========== PEGAWAI ROUTES (KASIR & ADMIN) ==========
-    Route::middleware(['role:kasir,admin'])->group(function () {
+    Route::middleware(['role:kasir,admin'])->group(function () use ($idPath, $editPath) {
 
         // KATEGORI
-        Route::prefix('kategori')->name('kategori.')->group(function () {
+        Route::prefix('kategori')->name('kategori.')->group(function () use ($idPath, $editPath) {
             Route::get('/', [KategoriController::class, 'index'])->name('index');
             Route::post('/', [KategoriController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [KategoriController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [KategoriController::class, 'update'])->name('update');
-            Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('destroy');
+            
+            // Gunakan variabel
+            Route::get($editPath, [KategoriController::class, 'edit'])->name('edit');
+            Route::put($idPath, [KategoriController::class, 'update'])->name('update');
+            Route::delete($idPath, [KategoriController::class, 'destroy'])->name('destroy');
         });
 
         // PRODUK
-        Route::prefix('produk')->name('produk.')->group(function () {
+        Route::prefix('produk')->name('produk.')->group(function () use ($idPath, $editPath) {
             Route::get('/', [ProductController::class, 'index'])->name('index');
             Route::post('/', [ProductController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ProductController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+            
+            // Gunakan variabel
+            Route::get($editPath, [ProductController::class, 'edit'])->name('edit');
+            Route::put($idPath, [ProductController::class, 'update'])->name('update');
+            Route::delete($idPath, [ProductController::class, 'destroy'])->name('destroy');
         });
 
         // PENGELUARAN
-        Route::prefix('pengeluaran')->name('pengeluaran.')->group(function () {
+        Route::prefix('pengeluaran')->name('pengeluaran.')->group(function () use ($idPath, $editPath) {
             Route::get('/', [OperasionalController::class, 'index'])->name('index');
             Route::post('/', [OperasionalController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [OperasionalController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [OperasionalController::class, 'update'])->name('update');
-            Route::delete('/{id}', [OperasionalController::class, 'destroy'])->name('destroy');
+            
+            // Gunakan variabel
+            Route::get($editPath, [OperasionalController::class, 'edit'])->name('edit');
+            Route::put($idPath, [OperasionalController::class, 'update'])->name('update');
+            Route::delete($idPath, [OperasionalController::class, 'destroy'])->name('destroy');
         });
 
         // RIWAYAT TRANSAKSI
-        Route::prefix('riwayat')->name('riwayat.')->group(function () {
+        Route::prefix('riwayat')->name('riwayat.')->group(function () use ($idPath) {
             Route::get('/', [RiwayatController::class, 'index'])->name('index');
-            Route::get('/{id}', [RiwayatController::class, 'show'])->name('show');
+            // Gunakan variabel
+            Route::get($idPath, [RiwayatController::class, 'show'])->name('show');
         });
 
         // DETAIL TRANSAKSI
@@ -83,36 +95,38 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ========== KASIR ONLY ROUTES ==========
-    Route::middleware(['role:kasir'])->group(function () {
+    Route::middleware(['role:kasir'])->group(function () use ($idPath) {
+        // Note: String kompleks gabungan tidak selalu harus diubah, kecuali SonarQube komplain spesifik
         Route::get('/transaksi/{id}/finish-qris', [TransaksiController::class, 'finishQris'])->name('transaksi.finish_qris');
 
         // TRANSAKSI
-        Route::prefix('transaksi')->name('transaksi.')->group(function () {
+        Route::prefix('transaksi')->name('transaksi.')->group(function () use ($idPath) {
             Route::get('/create', [TransaksiController::class, 'create'])->name('create');
             Route::post('/', [TransaksiController::class, 'store'])->name('store');
-            Route::get('/{id}/print', [TransaksiController::class, 'printStruk'])->name('print');
+            // String concat agar tetap DRY
+            Route::get($idPath . '/print', [TransaksiController::class, 'printStruk'])->name('print');
         });
 
         // CART ROUTES (Tanpa AJAX)
-        Route::prefix('cart')->name('cart.')->group(function () {
+        Route::prefix('cart')->name('cart.')->group(function () use ($idPath) {
             Route::post('/add', [TransaksiController::class, 'addToCart'])->name('add');
-            Route::put('/update/{id}', [TransaksiController::class, 'updateCart'])->name('update');
-            Route::delete('/remove/{id}', [TransaksiController::class, 'removeFromCart'])->name('remove');
+            Route::put('/update' . $idPath, [TransaksiController::class, 'updateCart'])->name('update');
+            Route::delete('/remove' . $idPath, [TransaksiController::class, 'removeFromCart'])->name('remove');
             Route::delete('/clear', [TransaksiController::class, 'clearCart'])->name('clear');
         });
     });
 
     // ========== ADMIN ONLY ROUTES (PEMILIK) ==========
-    Route::middleware(['role:admin'])->prefix('pemilik')->name('pemilik.')->group(function () {
+    Route::middleware(['role:admin'])->prefix('pemilik')->name('pemilik.')->group(function () use ($idPath, $editPath) {
         // MANAJEMEN PEGAWAI
-        Route::prefix('pegawai')->name('pegawai.')->group(function () {
+        Route::prefix('pegawai')->name('pegawai.')->group(function () use ($idPath, $editPath) {
             Route::get('/', [AddPegawaiController::class, 'index'])->name('index');
             Route::post('/', [AddPegawaiController::class, 'store'])->name('store');
 
-            // Pastikan parameternya '{id}' (bukan '{user}' atau lainnya)
-            Route::get('/{id}/edit', [AddPegawaiController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [AddPegawaiController::class, 'update'])->name('update');
-            Route::delete('/{id}', [AddPegawaiController::class, 'destroy'])->name('destroy');
+            // Gunakan variabel
+            Route::get($editPath, [AddPegawaiController::class, 'edit'])->name('edit');
+            Route::put($idPath, [AddPegawaiController::class, 'update'])->name('update');
+            Route::delete($idPath, [AddPegawaiController::class, 'destroy'])->name('destroy');
         });
 
         // LAPORAN

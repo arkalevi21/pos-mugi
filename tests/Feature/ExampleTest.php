@@ -14,6 +14,8 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        // UBAH DARI 200 MENJADI 302
+        // Karena user yang belum login akan di-redirect ke halaman login
+        $response->assertStatus(302);
     }
 }
