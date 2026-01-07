@@ -7,7 +7,7 @@ use App\Services\Pemilik\LaporanService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class LaporanController extends Controller
+class RiwayatController extends Controller
 {
     protected $laporanService;
 

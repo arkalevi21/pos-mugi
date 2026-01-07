@@ -7,7 +7,7 @@ use App\Http\Controllers\Pegawai\ProductController;
 use App\Http\Controllers\Pegawai\OperasionalController;
 use App\Http\Controllers\Pegawai\TransaksiController;
 use App\Http\Controllers\Pemilik\AddPegawaiController;
-use App\Http\Controllers\Pemilik\LaporanController;
+use App\Http\Controllers\Pemilik\RiwayatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,9 +118,9 @@ Route::middleware(['auth'])->group(function () use ($idPath, $editPath) { // Pas
 
         // LAPORAN
         Route::prefix('laporan')->name('laporan.')->group(function () {
-            Route::get('/', [LaporanController::class, 'index'])->name('index');
-            Route::get('/print', [LaporanController::class, 'print'])->name('print');
-            Route::get('/export', [LaporanController::class, 'export'])->name('export');
+            Route::get('/', [RiwayatController::class, 'index'])->name('index');
+            Route::get('/print', [RiwayatController::class, 'print'])->name('print');
+            Route::get('/export', [RiwayatController::class, 'export'])->name('export');
         });
     });
 });
