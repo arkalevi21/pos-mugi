@@ -3,64 +3,67 @@
 namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pegawai\Produk;
-use App\Models\Pegawai\Kategori;
+use App\Models\Pegawai\Kategori; 
+use App\Services\Pegawai\ProductService; 
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Storage; // Hapus ini karena tidak pakai storage gambar lagi
 
 class ProductController extends Controller
 {
-    // HAPUS baris 'private const PRODUCT_DIR' di sini. Kita tidak butuh lagi.
+    protected $productService;
 
     /**
-     * Display a listing of the resource.
+     * Inject ProductService ke dalam Controller
+     */
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
+    /**
+     * Menampilkan daftar produk
      */
     public function index(Request $request)
     {
-        $product = Produk::with('kategori')->get();
+        
+        $product = $this->productService->getAllProducts();
+
+        
         $kategori = Kategori::all();
+
         
         $editMode = false;
         $produkEdit = null;
-        
+
         if ($request->has('edit')) {
-            $produkEdit = Produk::find($request->edit);
+            
+            $produkEdit = $this->productService->getProductById($request->edit);
             if ($produkEdit) {
                 $editMode = true;
             }
         }
-        
+
         return view('pegawai.produk.index', compact('product', 'kategori', 'editMode', 'produkEdit'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Menyimpan produk baru
      */
     public function store(Request $request)
     {
         try {
-            // Validasi tanpa gambar
-            $request->validate([
+            // 1. Validasi Input (Tugas HTTP Layer)
+            $validatedData = $request->validate([
                 'nama_produk' => 'required|string|max:100',
                 'id_kategori' => 'required|exists:kategori,id_kategori',
                 'harga' => 'required|numeric|min:0',
             ]);
-            
-            $data = [
-                'nama_produk' => $request->nama_produk,
-                'id_kategori' => $request->id_kategori,
-                'harga' => $request->harga,
-                'stok' => 0,
-                'is_active' => true
-            ];
-            
-            // Logika upload gambar dihapus total
-            
-            Produk::create($data);
-            
+
+          
+            $this->productService->createProduct($validatedData);
+
             return redirect()->route('produk.index')
                 ->with('success', 'Produk berhasil ditambahkan');
-            
+
         } catch (\Exception $e) {
             return redirect()->route('produk.index')
                 ->with('error', 'Gagal menambahkan produk: ' . $e->getMessage());
@@ -68,32 +71,28 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Memperbarui produk
      */
     public function update(Request $request, $id)
     {
         try {
-            $request->validate([
+            
+            $validatedData = $request->validate([
                 'nama_produk' => 'required|string|max:100',
                 'id_kategori' => 'required|exists:kategori,id_kategori',
                 'harga' => 'required|numeric|min:0',
             ]);
-            
-            $produk = Produk::findOrFail($id);
-            
-            $data = [
-                'nama_produk' => $request->nama_produk,
-                'id_kategori' => $request->id_kategori,
-                'harga' => $request->harga
-            ];
-            
-            // Logika update gambar dihapus total
-            
-            $produk->update($data);
-            
+
+           
+            $updated = $this->productService->updateProduct($id, $validatedData);
+
+            if (!$updated) {
+                throw new \Exception("Produk tidak ditemukan.");
+            }
+
             return redirect()->route('produk.index')
                 ->with('success', 'Produk berhasil diperbarui');
-            
+
         } catch (\Exception $e) {
             return redirect()->route('produk.index')
                 ->with('error', 'Gagal memperbarui produk: ' . $e->getMessage());
@@ -101,20 +100,17 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus produk
      */
     public function destroy($id)
     {
         try {
-            $produk = Produk::findOrFail($id);
             
-            // Logika hapus file gambar dihapus total
-            
-            $produk->delete();
-            
+            $this->productService->deleteProduct($id);
+
             return redirect()->route('produk.index')
                 ->with('success', 'Produk berhasil dihapus');
-            
+
         } catch (\Exception $e) {
             return redirect()->route('produk.index')
                 ->with('error', 'Gagal menghapus produk: ' . $e->getMessage());

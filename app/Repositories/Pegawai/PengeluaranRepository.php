@@ -22,6 +22,13 @@ class PengeluaranRepository
         return $query->get();
     }
 
+    public function getByDateRange($startDate, $endDate): Collection
+    {
+        return Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])
+            ->orderBy('tanggal', 'desc')
+            ->get();
+    }
+
     public function findById($id): ?Pengeluaran
     {
         return Pengeluaran::find($id);

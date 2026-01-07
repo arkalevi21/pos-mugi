@@ -3,53 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Services\AuthService; 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Show login form
-     */
+    protected $authService;
+
+    // 1. Inject AuthService via Constructor
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle login request
-     */
     public function login(LoginRequest $request)
     {
         $credentials = $request->only('username', 'password');
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
+       
+        $user = $this->authService->attemptLogin(
+            $credentials,
+            $request->filled('remember')
+        );
 
-            // Redirect berdasarkan role
-            $user = Auth::user();
+        
+        if ($user) {
+           
             if ($user->isAdmin()) {
-                // Redirect ke halaman kelola pegawai untuk admin
                 return redirect()->intended(route('pemilik.pegawai.index'));
             }
 
-            // Redirect ke halaman transaksi untuk kasir
             return redirect()->intended(route('transaksi.create'));
         }
 
+        // Jika gagal
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
     }
 
-    /**
-     * Handle logout request
-     */
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        
+        $this->authService->logout();
 
         return redirect('/login');
     }
