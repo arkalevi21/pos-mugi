@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Pemilik\AddPegawaiController;
+use App\Http\Controllers\Api\V1\Pemilik\RiwayatController;
 use App\Http\Controllers\Api\V1\Pegawai\ProductController;
 use App\Http\Controllers\Api\V1\Pegawai\KategoriController;
 use App\Http\Controllers\Api\V1\Pegawai\OperasionalController;
 use App\Http\Controllers\Api\V1\Pegawai\TransaksiController;
-use App\Http\Controllers\Pemilik\RiwayatController;
 
 /*
 
