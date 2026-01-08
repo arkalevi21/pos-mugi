@@ -6,30 +6,22 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-    /**
-     * Coba login user.
-     * Return User object jika sukses, null jika gagal.
-     */
     public function attemptLogin(array $credentials, bool $remember): ?\App\Models\User
     {
+        // Auth::attempt tetap bisa dipake buat cek password
         if (Auth::attempt($credentials, $remember)) {
-            
-            request()->session()->regenerate();
-
+            // HAPUS baris session()->regenerate();
             return Auth::user();
         }
 
         return null;
     }
 
-    /**
-     * Logout user
-     */
     public function logout(): void
     {
-        Auth::logout();
-
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+        // Untuk API token, logout itu biasanya hapus token di database
+        // Auth::user()->currentAccessToken()->delete(); 
+        // Tapi logic itu sebaiknya di Controller atau di sini.
+        // HAPUS baris session()->invalidate() dll.
     }
 }

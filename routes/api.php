@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Pemilik\AddPegawaiController;
-use App\Http\Controllers\Api\V1\Pemilik\LaporanController;
 use App\Http\Controllers\Api\V1\Pegawai\ProductController;
 use App\Http\Controllers\Api\V1\Pegawai\KategoriController;
 use App\Http\Controllers\Api\V1\Pegawai\OperasionalController;
 use App\Http\Controllers\Api\V1\Pegawai\TransaksiController;
+use App\Http\Controllers\Pemilik\RiwayatController;
 
 /*
 
@@ -22,8 +22,6 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/transaksi/callback', [TransaksiController::class, 'callback']);
-
-
     
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -34,7 +32,7 @@ Route::prefix('v1')->group(function () {
        
         Route::prefix('admin')->group(function () {
             Route::apiResource('pegawai', AddPegawaiController::class);
-            Route::get('/laporan', [LaporanController::class, 'index']);
+            Route::get('/laporan', [RiwayatController::class, 'index']);
         });
 
 
